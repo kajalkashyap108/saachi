@@ -1,35 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+function App() { //
+  const [joke, setJoke] = useState(null); 
+  const [loading, setLoading] = useState(false); 
+
+  
+  const fetchJoke = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("https://official-joke-api.appspot.com/random_joke");
+      const data = await response.json();
+      setJoke(data); 
+    } catch (error) {
+      console.error("Error fetching joke:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
+  useEffect(() => {
+    fetchJoke();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="App">
+      <div className="joke-card">
+        {loading ? (
+          <p>Loading...</p>
+        ) : joke ? (
+          <div>
+            <h2>Joke of the Day:</h2>
+            <p><strong>Setup:</strong> {joke.setup}</p>
+            <p><strong>Punchline:</strong> {joke.punchline}</p>
+          </div>
+        ) : (
+          <p>No joke found!</p>
+        )}
+        <button onClick={fetchJoke} className="joke-button">
+          Get Another Joke
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
